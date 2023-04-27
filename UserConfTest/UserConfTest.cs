@@ -1,5 +1,7 @@
 using Newtonsoft.Json;
+
 using UCT;
+
 using Xunit.Abstractions;
 using Xunit.Sdk;
 
@@ -15,8 +17,8 @@ public class UserConfTest {
   [Fact]
   public void Validation() {
     var invalid_engine_install = new EngineInstall {
-        RootLocation = "C:/",
-        Version = new Version(4, 27, 0)
+      RootLocation = "C:/",
+      Version      = new Version(4, 27, 0)
     };
     Assert.Equal(EngineInstallValidationError.NotAnEngineRoot, invalid_engine_install.Validate());
     // user_conf.EngineInstalls.Add(invalid_engine_install);
@@ -31,26 +33,37 @@ public class UserConfTest {
     }
 
     var user_conf_string = File.ReadAllText(filePath);
-    var user_conf = JsonConvert.DeserializeObject<UCT.UserConf>(user_conf_string);
+    var user_conf        = JsonConvert.DeserializeObject<UCT.UserConf>(user_conf_string);
     if (user_conf == null) {
       throw new SkipException($"Invalid content in {filePath}, file might be corrupt.");
     }
 
     foreach (var engine_install in user_conf.EngineInstalls) {
+      var exe_path = Path.Combine(engine_install.RootLocation, "Engine", "Binaries", "Win64");
+
       Assert.True(Directory.Exists(engine_install.RootLocation));
-      Assert.True(File.Exists(Path.Combine(engine_install.RootLocation, "Engine", "Binaries", "Win64", "UE4Editor.exe"))
-                  || File.Exists(Path.Combine(engine_install.RootLocation, "Engine", "Binaries", "Win64",
-                      "UnrealEditor.exe")));
-      // TODO: Check version
-      // TODO: Check version
-      // TODO: Check version
-      // TODO: Check version
+      Assert.True(
+          File.Exists(Path.Combine(exe_path, "UE4Editor.exe"))
+       || File.Exists(Path.Combine(exe_path, "UnrealEditor.exe"))
+      );
+
+      var editor_target_string = File.ReadAllText(Path.Combine(exe_path, "Build.version"));
+      var editor_target =
+          JsonConvert.DeserializeObject<EngineInsight.BuildTarget>(editor_target_string);
+      var editor_version = editor_target.get_version();
+      // TODO: Only checking rocket builds. Custom builds are not supported yet.
+      Assert.True(
+          editor_version.Major == engine_install.Version.LeftValue.Major
+       && editor_version.Minor == engine_install.Version.LeftValue.Minor
+      );
     }
 
     _test_output_helper.WriteLine($"Loaded user configuration from {filePath}");
 
-    user_conf?.EngineInstalls.ForEach(engineInstall => {
-      _test_output_helper.WriteLine($"Engine install: {engineInstall.RootLocation}");
-    });
+    user_conf?.EngineInstalls.ForEach(
+        engineInstall => {
+          _test_output_helper.WriteLine($"Engine install: {engineInstall.RootLocation}");
+        }
+    );
   }
 }

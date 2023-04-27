@@ -8,6 +8,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Util", "Util\Util.csproj", 
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UserConfTest", "UserConfTest\UserConfTest.csproj", "{9DA091B1-CD00-4F83-AEE8-BFD0F837DF1C}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EngineInsight", "EngineInsight\EngineInsight.csproj", "{DF3EF148-59B4-456A-9C44-5B953FD66AFC}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -30,5 +32,9 @@ Global
 		{9DA091B1-CD00-4F83-AEE8-BFD0F837DF1C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{9DA091B1-CD00-4F83-AEE8-BFD0F837DF1C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{9DA091B1-CD00-4F83-AEE8-BFD0F837DF1C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DF3EF148-59B4-456A-9C44-5B953FD66AFC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DF3EF148-59B4-456A-9C44-5B953FD66AFC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DF3EF148-59B4-456A-9C44-5B953FD66AFC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DF3EF148-59B4-456A-9C44-5B953FD66AFC}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
