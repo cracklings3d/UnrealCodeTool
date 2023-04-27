@@ -1,17 +1,17 @@
 ﻿namespace UCT.Util;
 
 public class Either<TLeft, TRight> {
-  private readonly TLeft  left;
+  private readonly TLeft left;
   private readonly TRight right;
-  private readonly bool   isLeft;
+  private readonly bool isLeft;
 
   private Either(TLeft left) {
-    this.left   = left;
+    this.left = left;
     this.isLeft = true;
   }
 
   private Either(TRight right) {
-    this.right  = right;
+    this.right = right;
     this.isLeft = false;
   }
 
@@ -27,18 +27,20 @@ public class Either<TLeft, TRight> {
     return this.isLeft ? leftFunc(this.left) : rightFunc(this.right);
   }
 
-  public bool IsLeft  => isLeft;
+  public bool IsLeft => isLeft;
   public bool IsRight => !isLeft;
+
   public TLeft LeftValue => isLeft
-                                ? left
-                                : throw new InvalidOperationException(
-                                      "Cannot access Left when Either is Right"
-                                  );
+      ? left
+      : throw new InvalidOperationException(
+          "Cannot access Left when Either is Right"
+      );
+
   public TRight RightValue => isLeft
-                                  ? throw new InvalidOperationException(
-                                        "Cannot access Right when Either is Left"
-                                    )
-                                  : right;
+      ? throw new InvalidOperationException(
+          "Cannot access Right when Either is Left"
+      )
+      : right;
 
   public static implicit operator Either<TLeft, TRight>(TLeft left) {
     return Left(left);

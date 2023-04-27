@@ -8,13 +8,13 @@ if (userConf == null) {
   return;
 }
 
-userConf.EngineInstall.Add(
+userConf.EngineInstalls.Add(
     new EngineInstall {
-      RootLocation = "C:\\Program Files\\Epic Games\\UE_4.27",
-      Version      = Version.Parse("4.27.1"),
+        RootLocation = "C:\\Program Files\\Epic Games\\UE_4.27",
+        Version = Version.Parse("4.27.1"),
     }
 );
-userConf.SvnPath              = "C:\\Program Files\\TortoiseSVN\\bin\\svn.exe";
+userConf.SvnPath = "C:\\Program Files\\TortoiseSVN\\bin\\svn.exe";
 userConf.SvnEnginePluginRepos = "https://svn.example.com/my_project";
 
 JsonHandler.SaveUserConf(userConf);
