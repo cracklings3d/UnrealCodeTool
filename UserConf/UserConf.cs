@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.IO;
+using System.Reflection;
 
 using Newtonsoft.Json;
 using Newtonsoft.Json.Utilities;
@@ -14,9 +15,11 @@ public enum EngineInstallValidationError {
   NotAnEngineRoot,
 }
 
+[JsonObject("engine_install")]
 public class EngineInstall {
-  public string                RootLocation { get; set; } = "";
-  public Either<Version, Guid> Version      { get; set; }
+  [JsonProperty("root_location")] public string  RootLocation { get; set; } = "";
+  [JsonProperty("version")]       public Version Version      { get; set; }
+  // public Either<Version, Guid> Version      { get; set; }
 
   public EngineInstallValidationError Validate() {
     if (!Directory.Exists(RootLocation)) return EngineInstallValidationError.LocationDoesNotExist;
@@ -44,16 +47,14 @@ public class UserConf {
     SvnEnginePluginRepos  = "";
     SvnProjectPluginRepos = "";
   }
-}
 
-public static class JsonHandler {
-  private static readonly string configFileName = "uct.conf.json";
+  public static UserConf? Load() {
+    return LoadUserConf();
+  }
 
-  private static readonly string configFilePath = Path.Combine(
-      Environment.GetFolderPath(Environment.SpecialFolder.UserProfile),
-      "UnrealCodeTool",
-      configFileName
-  );
+  private static readonly string homeDir = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
+
+  private static readonly string configFilePath = Path.Combine(homeDir, "UnrealCodeTool", "user.conf");
 
   public static void SaveUserConf(UserConf? userConf) {
     if (userConf == null) return;

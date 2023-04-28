@@ -1,7 +1,7 @@
 ﻿using UCT;
 using UCT.Util;
 
-UserConf? userConf = JsonHandler.LoadUserConf();
+UserConf? userConf = UserConf.LoadUserConf();
 
 if (userConf == null) {
   Console.WriteLine("Failed to load user configuration");
@@ -17,4 +17,4 @@ userConf.EngineInstalls.Add(
 userConf.SvnPath = "C:\\Program Files\\TortoiseSVN\\bin\\svn.exe";
 userConf.SvnEnginePluginRepos = "https://svn.example.com/my_project";
 
-JsonHandler.SaveUserConf(userConf);
+UserConf.SaveUserConf(userConf);

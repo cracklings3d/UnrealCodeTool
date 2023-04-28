@@ -24,9 +24,10 @@ public class UserConfTest {
     // user_conf.EngineInstalls.Add(invalid_engine_install);
   }
 
-  [Fact(Skip = "Cannot find an unreal engine install if conf file is not present or corrupt")]
+  [Fact]
   public void Load() {
-    const string filePath = "~/UCT/user.conf";
+    string homeDir  = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
+    string filePath = Path.Combine(homeDir, "UnrealCodeTool", "user.conf");
 
     if (!File.Exists(filePath)) {
       throw new SkipException($"Cannot find file: {filePath}");
@@ -47,14 +48,20 @@ public class UserConfTest {
        || File.Exists(Path.Combine(exe_path, "UnrealEditor.exe"))
       );
 
-      var editor_target_string = File.ReadAllText(Path.Combine(exe_path, "Build.version"));
-      var editor_target =
-          JsonConvert.DeserializeObject<EngineInsight.BuildTarget>(editor_target_string);
-      var editor_version = editor_target.get_version();
+      // UE 5 version
+      var editor_target_path = Path.Combine(exe_path, "UnrealEditor.target");
+      if (!File.Exists(editor_target_path)) {
+        // UE 4 version
+        editor_target_path = Path.Combine(exe_path, "UE4Editor.target");
+      }
+      var editor_target_string = File.ReadAllText(editor_target_path);
+      var editor_target        = EngineInsight.BuildTarget.parse(editor_target_string);
+      var editor_version       = editor_target?.get_version();
       // TODO: Only checking rocket builds. Custom builds are not supported yet.
       Assert.True(
-          editor_version.Major == engine_install.Version.LeftValue.Major
-       && editor_version.Minor == engine_install.Version.LeftValue.Minor
+          editor_version       != null
+       && editor_version.Major == engine_install.Version.Major
+       && editor_version.Minor == engine_install.Version.Minor
       );
     }
 

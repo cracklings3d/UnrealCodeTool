@@ -1,40 +1,9 @@
-﻿using Newtonsoft.Json;
+﻿using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace EngineInsight;
 
-// {
-//   "TargetName": "UnrealEditor",
-//   "Platform": "Win64",
-//   "Configuration": "Development",
-//   "TargetType": "Editor",
-//   "IsTestTarget": false,
-//   "Architecture": "",
-//   "Launch": "$(EngineDir)/Binaries/Win64/UnrealEditor.exe",
-//   "LaunchCmd": "$(EngineDir)/Binaries/Win64/UnrealEditor-Cmd.exe",
-//   "Version":
-//   {
-//     "MajorVersion": 5,
-//     "MinorVersion": 1,
-//     "PatchVersion": 1,
-//     "Changelist": 23901901,
-//     "CompatibleChangelist": 23058290,
-//     "IsLicenseeVersion": 0,
-//     "IsPromotedBuild": 1,
-//     "BranchName": "++UE5+Release-5.1",
-//     "BuildId": "23058290"
-//   },
-//   "BuildProducts": [
-//     {
-//       "Path": "$(EngineDir)/Binaries/ThirdParty/USD/UsdResources/Win64/plugins/ar/resources/plugInfo.json",
-//       "Type": "RequiredResource"
-//     },
-//     {
-//       "Path": "$(EngineDir)/Binaries/ThirdParty/USD/UsdResources/Win64/plugins/ndr/resources/plugInfo.json",
-//       "Type": "RequiredResource"
-//     },
-//   ]
-// } 
-
+[JsonConverter(typeof(JsonStringEnumConverter))]
 public enum BuildPlatform {
   Android,
   DotNET,
@@ -45,6 +14,7 @@ public enum BuildPlatform {
   Win64,
 }
 
+[JsonConverter(typeof(JsonStringEnumConverter))]
 public enum BuildConfiguration {
   Debug,
   Development,
@@ -53,6 +23,7 @@ public enum BuildConfiguration {
 }
 
 // TODO: Incomplete due to lack of knowledge
+[JsonConverter(typeof(JsonStringEnumConverter))]
 public enum BuildTargetType {
   Game,
   Editor,
@@ -60,37 +31,77 @@ public enum BuildTargetType {
   Server,
 }
 
-[JsonObject]
 public class BuildVersion {
-  [JsonProperty] public int    MajorVersion         { get; set; }
-  [JsonProperty] public int    MinorVersion         { get; set; }
-  [JsonProperty] public int    PatchVersion         { get; set; }
-  [JsonProperty] public int    Changelist           { get; set; }
-  [JsonProperty] public int    CompatibleChangelist { get; set; }
-  [JsonProperty] public int    IsLicenseeVersion    { get; set; }
-  [JsonProperty] public int    IsPromotedBuild      { get; set; }
-  [JsonProperty] public string BranchName           { get; set; } = "";
-  [JsonProperty] public string BuildId              { get; set; } = "";
+  public int    MajorVersion         { get; set; }
+  public int    MinorVersion         { get; set; }
+  public int    PatchVersion         { get; set; }
+  public int    Changelist           { get; set; }
+  public int    CompatibleChangelist { get; set; }
+  public int    IsLicenseeVersion    { get; set; }
+  public int    IsPromotedBuild      { get; set; }
+  public string BranchName           { get; set; } = "";
+  public string BuildId              { get; set; } = "";
 }
 
-[JsonObject]
 public class BuildProduct {
-  [JsonProperty] public string Path { get; set; } = "";
-  [JsonProperty] public string Type { get; set; } = "";
+  public string Path { get; set; } = "";
+  public string Type { get; set; } = "";
 }
 
-[JsonObject]
+[Newtonsoft.Json.JsonConverter(typeof(JsonStringEnumConverter))]
+public enum RuntimeDependencyType {
+  UFS,
+  NonUFS,
+}
+
+public class RuntimeDependency {
+  public string                Path { get; set; } = "";
+  public RuntimeDependencyType Type { get; set; }
+}
+
+public class Property {
+  public string Name  { get; set; } = "";
+  public string Value { get; set; } = "";
+}
+
+// [JsonObject(MemberSerialization.Fields)]
 public class BuildTarget {
-  [JsonProperty] public string             TargetName    { get; set; } = "";
-  [JsonProperty] public BuildPlatform      Platform      { get; set; }
-  [JsonProperty] public BuildConfiguration Configuration { get; set; }
-  [JsonProperty] public BuildTargetType    TargetType    { get; set; }
-  [JsonProperty] public bool               IsTestTarget  { get; set; }
-  [JsonProperty] public string             Architecture  { get; set; } = "";
-  [JsonProperty] public string             Launch        { get; set; } = "";
-  [JsonProperty] public string             LaunchCmd     { get; set; } = "";
-  [JsonProperty] public BuildVersion       Version       { get; set; } = new();
-  [JsonProperty] public List<BuildProduct> BuildProducts { get; set; } = new();
+  public                                                  string                  TargetName           { get; set; }
+  [JsonConverter(typeof(JsonStringEnumConverter))] public BuildPlatform           Platform             { get; set; }
+  [JsonConverter(typeof(JsonStringEnumConverter))] public BuildConfiguration      Configuration        { get; set; }
+  [JsonConverter(typeof(JsonStringEnumConverter))] public BuildTargetType         TargetType           { get; set; }
+  public                                                  bool                    IsTestTarget         { get; set; }
+  public                                                  string                  Architecture         { get; set; }
+  public                                                  string                  Launch               { get; set; }
+  public                                                  string                  LaunchCmd            { get; set; }
+  public                                                  BuildVersion            Version              { get; set; }
+  public                                                  List<BuildProduct>      BuildProducts        { get; set; }
+  public                                                  List<RuntimeDependency> RuntimeDependencies  { get; set; }
+  public                                                  List<Property>          AdditionalProperties { get; set; }
+
+  // Update the parse() method to use the private constructor
+  // public static BuildTarget? parse(string json) {
+  //   var traceWriter = new MemoryTraceWriter();
+  //   var va = JsonConvert.DeserializeObject<BuildTarget>(
+  //       json,
+  //       new JsonSerializerSettings {
+  //         ConstructorHandling = ConstructorHandling.AllowNonPublicDefaultConstructor,
+  //         TraceWriter         = traceWriter
+  //       }
+  //   );
+  //   Console.WriteLine(traceWriter.ToString());
+  //   return va;
+  // }
+  public static BuildTarget? parse(string json) {
+    var options = new JsonSerializerOptions {
+      PropertyNameCaseInsensitive = true, // this makes the deserializer case-insensitive when matching property names
+      AllowTrailingCommas =
+          true, // this allows the JSON input to include trailing commas (which are technically invalid, but some libraries allow them)
+    };
+    var target = System.Text.Json.JsonSerializer.Deserialize<BuildTarget>(json, options);
+    return target;
+  }
+
 
   public Version get_version() {
     return new Version(Version.MajorVersion, Version.MinorVersion, Version.PatchVersion);
