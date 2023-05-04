@@ -1,4 +1,4 @@
-using Newtonsoft.Json;
+using System.Text.Json;
 
 using UCT;
 
@@ -34,7 +34,7 @@ public class UserConfTest {
     }
 
     var user_conf_string = File.ReadAllText(filePath);
-    var user_conf        = JsonConvert.DeserializeObject<UCT.UserConf>(user_conf_string);
+    var user_conf        = JsonSerializer.Deserialize<UCT.UserConf>(user_conf_string);
     if (user_conf == null) {
       throw new SkipException($"Invalid content in {filePath}, file might be corrupt.");
     }
@@ -67,7 +67,7 @@ public class UserConfTest {
 
     _test_output_helper.WriteLine($"Loaded user configuration from {filePath}");
 
-    user_conf?.EngineInstalls.ForEach(
+    user_conf.EngineInstalls.ForEach(
         engineInstall => {
           _test_output_helper.WriteLine($"Engine install: {engineInstall.RootLocation}");
         }

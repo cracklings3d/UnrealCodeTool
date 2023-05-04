@@ -48,10 +48,11 @@ public class BuildProduct {
   public string Type { get; set; } = "";
 }
 
-[Newtonsoft.Json.JsonConverter(typeof(JsonStringEnumConverter))]
+[JsonConverter(typeof(JsonStringEnumConverter))]
 public enum RuntimeDependencyType {
   UFS,
   NonUFS,
+  DebugNonUFS,
 }
 
 public class RuntimeDependency {
@@ -66,39 +67,25 @@ public class Property {
 
 // [JsonObject(MemberSerialization.Fields)]
 public class BuildTarget {
-  public                                                  string                  TargetName           { get; set; }
-  [JsonConverter(typeof(JsonStringEnumConverter))] public BuildPlatform           Platform             { get; set; }
-  [JsonConverter(typeof(JsonStringEnumConverter))] public BuildConfiguration      Configuration        { get; set; }
-  [JsonConverter(typeof(JsonStringEnumConverter))] public BuildTargetType         TargetType           { get; set; }
-  public                                                  bool                    IsTestTarget         { get; set; }
-  public                                                  string                  Architecture         { get; set; }
-  public                                                  string                  Launch               { get; set; }
-  public                                                  string                  LaunchCmd            { get; set; }
-  public                                                  BuildVersion            Version              { get; set; }
-  public                                                  List<BuildProduct>      BuildProducts        { get; set; }
-  public                                                  List<RuntimeDependency> RuntimeDependencies  { get; set; }
-  public                                                  List<Property>          AdditionalProperties { get; set; }
+  public string                  TargetName           { get; set; }
+  public BuildPlatform           Platform             { get; set; }
+  public BuildConfiguration      Configuration        { get; set; }
+  public BuildTargetType         TargetType           { get; set; }
+  public bool                    IsTestTarget         { get; set; }
+  public string                  Architecture         { get; set; }
+  public string                  Launch               { get; set; }
+  public string                  LaunchCmd            { get; set; }
+  public BuildVersion            Version              { get; set; }
+  public List<BuildProduct>      BuildProducts        { get; set; }
+  public List<RuntimeDependency> RuntimeDependencies  { get; set; }
+  public List<Property>          AdditionalProperties { get; set; }
 
-  // Update the parse() method to use the private constructor
-  // public static BuildTarget? parse(string json) {
-  //   var traceWriter = new MemoryTraceWriter();
-  //   var va = JsonConvert.DeserializeObject<BuildTarget>(
-  //       json,
-  //       new JsonSerializerSettings {
-  //         ConstructorHandling = ConstructorHandling.AllowNonPublicDefaultConstructor,
-  //         TraceWriter         = traceWriter
-  //       }
-  //   );
-  //   Console.WriteLine(traceWriter.ToString());
-  //   return va;
-  // }
   public static BuildTarget? parse(string json) {
     var options = new JsonSerializerOptions {
-      PropertyNameCaseInsensitive = true, // this makes the deserializer case-insensitive when matching property names
-      AllowTrailingCommas =
-          true, // this allows the JSON input to include trailing commas (which are technically invalid, but some libraries allow them)
+      PropertyNameCaseInsensitive = true, // Enable case-insensitivity for property names during deserialization 
+      AllowTrailingCommas         = true  // Allow trailing commas in JSON input (technically invalid but may exist)
     };
-    var target = System.Text.Json.JsonSerializer.Deserialize<BuildTarget>(json, options);
+    var target = JsonSerializer.Deserialize<BuildTarget>(json, options);
     return target;
   }
 
